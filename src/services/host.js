@@ -1,5 +1,6 @@
 import { hostApi } from './api';
 
+// Use real microservices API
 export const createHost = async (data) => {
   const response = await hostApi.post('/hosts', data);
   return response.data;

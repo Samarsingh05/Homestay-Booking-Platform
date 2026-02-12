@@ -1,5 +1,6 @@
 import { homestayApi } from './api';
 
+// Use real microservices API
 export const getHomestays = async () => {
   const response = await homestayApi.get('/homestays');
   return response.data;

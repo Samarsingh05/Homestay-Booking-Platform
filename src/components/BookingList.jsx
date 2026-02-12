@@ -1,35 +1,45 @@
-import { useState, useEffect } from 'react';
-import { getBookings, updateBooking } from '../services/booking';
+import { useState, useEffect, useContext, useCallback } from 'react';
+import { AppContext } from '../context/AppContext';
+import simpleData from '../services/simpleData';
 
 function BookingList() {
-  const userId = 1; // Fixed user ID for simplicity
+  const { customerId } = useContext(AppContext);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
+    if (!customerId) return;
+    
     setLoading(true);
     try {
-      const data = await getBookings(userId);
+      // Use simple data service instead of microservices
+      const data = simpleData.getUserBookings(customerId);
       setBookings(data);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [customerId]);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
   const handleCancel = async (id) => {
     try {
-      await updateBooking(id, { status: 'canceled' });
-      alert('Booking canceled');
-      fetchBookings(); // Refetch bookings after cancellation
+      // Update booking status in simple data service
+      const bookingIndex = bookings.findIndex(b => b.id === id);
+      if (bookingIndex !== -1) {
+        bookings[bookingIndex].status = 'canceled';
+        simpleData.bookings = bookings;
+        simpleData.saveBookings();
+        alert('Booking canceled');
+        fetchBookings(); // Refetch bookings after cancellation
+      }
     } catch (err) {
-      alert('Error: ' + (err.response?.data?.error || err.message));
+      alert('Error: ' + err.message);
     }
   };
 

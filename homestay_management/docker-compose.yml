@@ -49,6 +49,22 @@ services:
     networks:
       - homestay-network
 
+  user_db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pass
+      POSTGRES_DB: user_db
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d user_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - homestay-network
+
   host_db:
     image: postgres:13
     environment:
@@ -112,6 +128,21 @@ services:
     networks:
       - homestay-network
 
+  user_service:
+    build: ./user_service
+    ports:
+      - "5005:5000"
+    depends_on:
+      user_db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://user_user:user_pass@user_db:5432/user_db
+      FLASK_ENV: development
+    volumes:
+      - ./user_service:/app
+    networks:
+      - homestay-network
+
   host_service:
     build: ./host_service
     ports:
@@ -138,6 +169,7 @@ volumes:
   room_data:
   booking_data:
   host_data:
+  user_data:
 
 networks:
   homestay-network:

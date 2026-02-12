@@ -1,5 +1,6 @@
 import { bookingApi } from './api';
 
+// Use real microservices API
 export const getBookings = async (userId) => {
   const response = await bookingApi.get(`/bookings?user_id=${userId}`);
   return response.data;

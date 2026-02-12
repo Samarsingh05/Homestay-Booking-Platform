@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-import { createHomestay } from '../services/homestay';
+import simpleData from '../services/simpleData';
 
 function HomestayForm() {
   const { hostId } = useContext(AppContext);
@@ -25,12 +25,13 @@ function HomestayForm() {
     setSubmitting(true);
     try {
       const data = { ...formData, host_id: hostId };
-      await createHomestay(data);
+      // Use simple data service instead of microservices
+      simpleData.createHomestay(data);
       alert('Homestay created successfully');
       navigate('/host');
     } catch (err) {
       setError(err);
-      alert('Error: ' + (err.response?.data?.error || err.message));
+      alert('Error: ' + err.message);
     } finally {
       setSubmitting(false);
     }

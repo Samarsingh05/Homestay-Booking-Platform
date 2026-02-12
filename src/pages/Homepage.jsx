@@ -1,13 +1,13 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
+import LoginPage from './LoginPage';
 
 function HomePage() {
-  const { setRole, setCustomerId, setHostId } = useContext(AppContext);
+  const { setRole } = useContext(AppContext);
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState(null);
   const [isNew, setIsNew] = useState(null);
-  const [uidInput, setUidInput] = useState('');
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
@@ -16,12 +16,9 @@ function HomePage() {
 
   const handleNew = () => {
     setIsNew(true);
+    // Navigate to registration pages
     if (selectedRole === 'customer') {
-      // Generate a random UID for customer (simulating incremental for demo)
-      const newUid = Math.floor(Math.random() * 100); // Simple random UID
-      setCustomerId(newUid);
-      setRole('customer');
-      navigate('/customer');
+      navigate('/customer/register');
     } else if (selectedRole === 'host') {
       navigate('/host/register');
     }
@@ -31,72 +28,105 @@ function HomePage() {
     setIsNew(false);
   };
 
-  const handleUidSubmit = () => {
-    if (selectedRole === 'customer') {
-      setCustomerId(parseInt(uidInput));
-      setRole('customer');
-      navigate('/customer');
-    } else if (selectedRole === 'host') {
-      setHostId(parseInt(uidInput));
-      setRole('host');
-      navigate('/host');
-    }
-  };
+  // If user has selected a role and wants to sign in, show login page
+  if (selectedRole && isNew === false) {
+    return <LoginPage selectedRole={selectedRole} />;
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold mb-8">Welcome to Homestay Management</h1>
-      <div className="space-x-4 mb-4">
-        <button
-          onClick={() => handleRoleSelect('customer')}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          Customer
-        </button>
-        <button
-          onClick={() => handleRoleSelect('host')}
-          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
-        >
-          Host
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Header */}
+      <div className="text-center pt-16 pb-8">
+        <h1 className="text-5xl font-bold text-gray-900 mb-4">
+          Welcome to Homestay Management
+        </h1>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto px-4">
+          Discover amazing places to stay or list your property with our trusted homestay platform
+        </p>
       </div>
-      {selectedRole && (
-        <div className="mt-4">
-          <h2 className="text-2xl font-semibold mb-2">Are you a new or existing {selectedRole}?</h2>
-          <div className="space-x-4">
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 pb-16">
+        {/* Role Selection */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+          <h2 className="text-2xl font-semibold text-center mb-8 text-gray-800">
+            How would you like to continue?
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
             <button
-              onClick={handleNew}
-              className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+              onClick={() => handleRoleSelect('customer')}
+              className={`p-8 rounded-xl border-2 transition-all duration-300 ${
+                selectedRole === 'customer'
+                  ? 'border-blue-500 bg-blue-50 shadow-lg transform scale-105'
+                  : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+              }`}
             >
-              New
+              <div className="text-4xl mb-4">🏖️</div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">Find a Stay</h3>
+              <p className="text-gray-600">Browse and book amazing homestays around the world</p>
             </button>
+            
             <button
-              onClick={handleExisting}
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+              onClick={() => handleRoleSelect('host')}
+              className={`p-8 rounded-xl border-2 transition-all duration-300 ${
+                selectedRole === 'host'
+                  ? 'border-green-500 bg-green-50 shadow-lg transform scale-105'
+                  : 'border-gray-200 hover:border-green-300 hover:shadow-md'
+              }`}
             >
-              Existing
+              <div className="text-4xl mb-4">🏠</div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">List Property</h3>
+              <p className="text-gray-600">Host your property and earn money from travelers</p>
             </button>
           </div>
         </div>
-      )}
-      {selectedRole && isNew === false && (
-        <div className="mt-4">
-          <h2 className="text-2xl font-semibold mb-2">Enter your {selectedRole} UID</h2>
-          <input
-            type="number"
-            value={uidInput}
-            onChange={(e) => setUidInput(e.target.value)}
-            className="p-2 border rounded"
-            placeholder="Enter UID"
-          />
-          <button
-            onClick={handleUidSubmit}
-            className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Submit
-          </button>
-        </div>
-      )}
+
+        {/* New/Existing Selection */}
+        {selectedRole && (
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 animate-fadeIn">
+            <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+              Are you a new or existing {selectedRole}?
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleNew}
+                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <div className="text-lg font-semibold">I'm New</div>
+                <div className="text-sm opacity-90">Get started now</div>
+              </button>
+              <button
+                onClick={handleExisting}
+                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <div className="text-lg font-semibold">I Have an Account</div>
+                <div className="text-sm opacity-90">Sign in to continue</div>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-8 text-gray-600">
+        <p>&copy; 2024 Homestay Management Platform. All rights reserved.</p>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
